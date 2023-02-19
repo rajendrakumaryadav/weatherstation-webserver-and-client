@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Local Weather Station</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container m-3">
+        <h1 class="text-3xl sm:text-2xl md:text-center">Welcome to Local Weather Station</h1>
+        <h2 id="latest-timestamp" class="sm:text-xs text-center rounded-2xl  bg-orange-200 p-5">Current Weather Data [Last updated at: <%= data[0].timestamp  %></h2>
+        <div class="flex flex-row justify-around mt-5">
+            <div class="flex flex-col bg-orange-200 rounded-xl p-20">
+                <h3 class="text-xl gap-x-20 underline">Temperature</h3>
+                <p id="latest_temp" class="text-md slate-500"><%= data[0].temperature %>°C</p>
+            </div>
+            <div class="flex flex-col bg-orange-200 rounded-xl p-20">
+                <h3 class="text-xl gap-x-20 underline">Humidity</h3>
+                <p id="latest_humidity" class="text-md  slate-500"><%= data[0].humidity %>%</p>
+            </div>
+    </div>
+
+    <h3 class="text-center text-2xl underline-offset-1 underline"> Previous all readings  </h3>
+    <div class="flex flex-col">
+        <!-- Title of below data -->
+        <div class="flex flex-row justify-evenly mt-5">
+            <div class="flex flex-col">
+                <h3 class="text-sm">Temperature</h3>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-sm">Humidity</h3>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-sm">Timestamp</h3>
+            </div>
+    </div>
+    <div class="flex flex-col">
+        <!-- Data -->
+        <% for (let i = 0; i < data.length; i++) { %>
+            <div class="flex flex-row justify-evenly mt-5">
+                <div class="flex flex-col">
+                    <p class="text-sm"><%= data[i].temperature %>°C</p>
+                </div>
+                <div class="flex flex-col">
+                    <p class="text-sm"><%= data[i].humidity %>%</p>
+                </div>
+                <div class="flex flex-col">
+                    <!-- 22-05-2023 -->
+                    <p class="text-sm"><%=data[i].timestamp %></p>
+                </div>
+            </div>
+        <% } %>
+    </div>
+    <!-- Socket io cdn -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.min.js"></script>
+    <script>
+        const socket = io("http://192.168.0.106:3000");
+        socket.on("connect", () => {
+            console.log("Connected to the server");
+        });
+        socket.on('disconnect', () => {
+            console.log("Disconnected from the server");
+        });
+        socket.on("data", (data) => {
+            console.log(data.data);
+            document.querySelector("#latest_temp").innerHTML = `${data.data.temperature} ${data.data.symbol}`;
+            document.querySelector("#latest_humidity").innerHTML = `${data.data.humidity} %`;
+            const timestamp = new Date(data.data.timestamp);
+            document.querySelector("#latest-timestamp").innerHTML = `Last updated at: ${timestamp}`;
+        });
+    </script>
+</body>
+</html>
